@@ -1,0 +1,2633 @@
+<!DOCTYPE html>
+<html lang="ru"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxMzgyMzYyNjcyMTYwODQ2NTQwMCIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzU4NDk4MGM2NWM2YzY0ZWNfYXF1YXJpdW1fM2QuaHRtbC0xODUifSwiZXhwIjoxNzkzNDY0NjM5LCJpYXQiOjE3OTM0NjEwMzksImFsZyI6IlJTMjU2In0.nntH4XfZ3M5fc4uAS2xfE_3B23spaO0tF4UlyAQTUFi0n3sQ6mRCMS9yz6rj6KOt29vddt3snEjjtYvUm2lZvAYoy9LfpNV5v9dk79OXY5YP6ahOTZ2Rt2X3Fz9jD2t88kjCTLdVfLqTQ4fJ5dDx8I6evtAzBCJg50fGtNVhXy4LZTTMvbBIoFQ9OOdru8UTrDGFlBwPgNF66L-JgZ5I0JSu5p4qvjq_7oHEd1bbcOP0MEQBFwB3SyMkzwk4BRV1yYiTN2xyDwrLFG81WA-GgVeXYcb9lM9tmrKsRMbCe1kfLTbrZOej5yjHhIgEz7KKJYNrZ9FdagQ8bFp3IzGPkQ","c_584980c65c6c64ec_aquarium_3d.html-185")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Реалистичный Сферический Аквариум</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #030914;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            background: radial-gradient(circle at 50% 45%, #0c2b4e 0%, #041022 55%, #01050c 100%);
+        }
+
+        /* Glassmorphism UI */
+        .glass-panel {
+            background: rgba(13, 31, 58, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-action {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.35);
+        }
+        .btn-action:active {
+            transform: translateY(0);
+        }
+
+        /* Подсказка */
+        .fade-out {
+            animation: fadeOut 4s forwards;
+            animation-delay: 4s;
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; pointer-events: none; }
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.fixed{position:fixed}.bottom-5{bottom:1.25rem}.left-1\/2{left:50%}.left-4{left:1rem}.right-4{right:1rem}.top-20{top:5rem}.top-4{top:1rem}.z-10{z-index:10}.z-50{z-index:50}.ml-auto{margin-left:auto}.flex{display:flex}.hidden{display:none}.h-3{height:0.75rem}.h-4{height:1rem}.w-3{width:0.75rem}.w-4{width:1rem}.w-\[95\%\]{width:95%}.max-w-2xl{max-width:42rem}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-amber-400\/30{border-color:rgb(251 191 36 / 0.3)}.border-blue-400\/30{border-color:rgb(96 165 250 / 0.3)}.border-cyan-400\/30{border-color:rgb(34 211 238 / 0.3)}.border-purple-400\/30{border-color:rgb(192 132 252 / 0.3)}.border-red-400\/30{border-color:rgb(248 113 113 / 0.3)}.bg-amber-500\/20{background-color:rgb(245 158 11 / 0.2)}.bg-blue-500\/20{background-color:rgb(59 130 246 / 0.2)}.bg-cyan-400{--tw-bg-opacity:1;background-color:rgb(34 211 238 / var(--tw-bg-opacity, 1))}.bg-cyan-500\/20{background-color:rgb(6 182 212 / 0.2)}.bg-purple-500\/20{background-color:rgb(168 85 247 / 0.2)}.bg-red-500\/20{background-color:rgb(239 68 68 / 0.2)}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-teal-600{--tw-gradient-to:#0d9488 var(--tw-gradient-to-position)}.p-2{padding:0.5rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.text-base{font-size:1rem;line-height:1.5rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.leading-tight{line-height:1.25}.tracking-wide{letter-spacing:0.025em}.text-amber-200{--tw-text-opacity:1;color:rgb(253 230 138 / var(--tw-text-opacity, 1))}.text-blue-200{--tw-text-opacity:1;color:rgb(191 219 254 / var(--tw-text-opacity, 1))}.text-cyan-100\/90{color:rgb(207 250 254 / 0.9)}.text-cyan-200{--tw-text-opacity:1;color:rgb(165 243 252 / var(--tw-text-opacity, 1))}.text-cyan-200\/80{color:rgb(165 243 252 / 0.8)}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-purple-200{--tw-text-opacity:1;color:rgb(233 213 255 / var(--tw-text-opacity, 1))}.text-red-200{--tw-text-opacity:1;color:rgb(254 202 202 / var(--tw-text-opacity, 1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.opacity-0{opacity:0}.opacity-40{opacity:0.4}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.hover\:bg-amber-500\/30:hover{background-color:rgb(245 158 11 / 0.3)}.hover\:bg-blue-500\/30:hover{background-color:rgb(59 130 246 / 0.3)}.hover\:bg-cyan-500\/30:hover{background-color:rgb(6 182 212 / 0.3)}.hover\:bg-purple-500\/30:hover{background-color:rgb(168 85 247 / 0.3)}.hover\:bg-red-500\/30:hover{background-color:rgb(239 68 68 / 0.3)}.hover\:from-emerald-400:hover{--tw-gradient-from:#34d399 var(--tw-gradient-from-position);--tw-gradient-to:rgb(52 211 153 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-teal-500:hover{--tw-gradient-to:#14b8a6 var(--tw-gradient-to-position)}@media (min-width: 640px){.sm\:inline{display:inline}.sm\:gap-2{gap:0.5rem}.sm\:p-3{padding:0.75rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:flex{display:flex}}</style></head>
+<body class="text-slate-100">
+
+    <!-- 3D Контейнер -->
+    <div id="canvas-container" style="background: radial-gradient(circle at 50% 45%, rgb(59, 29, 17) 0%, rgb(20, 9, 6) 55%, rgb(5, 2, 1) 100%);"><canvas width="711" height="621" style="display: block; width: 948px; height: 828px;"></canvas></div>
+
+    <!-- Верхний заголовок и подсказка -->
+    <div class="fixed top-4 left-4 right-4 flex justify-between items-start pointer-events-none z-10">
+        <div class="glass-panel px-5 py-3 rounded-2xl pointer-events-auto flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></div>
+            <div>
+                <h1 class="font-bold text-base sm:text-lg tracking-wide text-white leading-tight">AquaSphere 3D</h1>
+                <p class="text-xs text-cyan-200/80">Интерактивный био-аквариум</p>
+            </div>
+        </div>
+
+        <div id="hint-box" class="glass-panel px-4 py-2 rounded-xl text-xs sm:text-sm text-cyan-100/90 hidden md:flex items-center gap-2 fade-out">
+            <span>🖱️ Вращение: ЛКМ / Свайп</span>
+            <span class="opacity-40">|</span>
+            <span>🔍 Зум: Колесико</span>
+            <span class="opacity-40">|</span>
+            <span>✨ Клик по воде — покормить</span>
+        </div>
+    </div>
+
+    <!-- Нижняя панель управления -->
+    <div class="fixed bottom-5 left-1/2 -translate-x-1/2 z-10 w-[95%] max-w-2xl">
+        <div class="glass-panel p-2 sm:p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2">
+            
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <!-- Покормить -->
+                <button id="btn-feed" class="btn-action flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/30 text-amber-200 text-xs sm:text-sm font-medium">
+                    <span>🪱</span>
+                    <span>Покормить</span>
+                </button>
+
+                <!-- Добавить рыбку -->
+                <button id="btn-add-fish" class="btn-action flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/30 text-cyan-200 text-xs sm:text-sm font-medium">
+                    <span>🐠</span>
+                    <span>+ Рыбка (<span id="fish-count">0</span>)</span>
+                </button>
+
+                <!-- Запустить Акулу -->
+                <button id="btn-shark" class="btn-action flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 text-red-200 text-xs sm:text-sm font-medium">
+                    <span>🦈</span>
+                    <span id="shark-state">Убрать Акулу</span>
+                </button>
+
+                <!-- Пузырьки -->
+                <button id="btn-bubbles" class="btn-action flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 text-blue-200 text-xs sm:text-sm font-medium">
+                    <span>🫧</span>
+                    <span class="hidden sm:inline">Аэрация:</span>
+                    <span id="bubble-state">Макс</span>
+                </button>
+
+                <!-- Свет -->
+                <button id="btn-light" class="btn-action flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 text-purple-200 text-xs sm:text-sm font-medium">
+                    <span>💡</span>
+                    <span class="hidden sm:inline">Режим:</span>
+                    <span id="light-state">Золотой Закат</span>
+                </button>
+            </div>
+
+            <!-- Кнопка скачивания HTML файла -->
+            <button id="btn-download" class="btn-action ml-auto flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm shadow-lg">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                <span>Скачать HTML</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Уведомление -->
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 glass-panel px-5 py-2.5 rounded-xl text-sm text-emerald-300 font-medium opacity-0 pointer-events-none transition-opacity duration-300" style="opacity: 0;">🦈 Акула съела рыбку! Осталось рыбок: 0</div>
+
+    <script>
+        // ==========================================
+        // ИНИЦИАЛИЗАЦИЯ СЦЕНЫ И КАМЕРЫ
+        // ==========================================
+        let scene, camera, renderer;
+        let aquariumGroup;
+        const BOWL_RADIUS = 10;
+        const WATER_LIMIT = 8.4; // Радиус, внутри которого плавают рыбки
+
+        const fishes = [];
+        const seaweeds = [];
+        const corals = [];
+        const foodParticles = [];
+        const biteEffects = [];
+        let shark = null;
+        let bubbleSystem, bubbleData = [];
+        let bubbleIntensity = 2; // 0: выкл, 1: норма, 2: макс
+        let lightingMode = 0; // 0: День, 1: Закат, 2: Неон-ночь
+
+        // Управление камерой
+        let isDragging = false;
+        let prevMouse = { x: 0, y: 0 };
+        let spherical = { theta: 0, phi: Math.PI / 2.05, radius: 26.5 };
+        let targetSpherical = { theta: 0, phi: Math.PI / 2.05, radius: 26.5 };
+        let autoRotate = true;
+
+        // Источники света для переключения режимов
+        let topLight, rimLightLeft, rimLightRight, bottomGlowLight, ambientLight;
+
+        // ==========================================
+        // ПРОЦЕДУРНАЯ ГЕНЕРАЦИЯ ТЕКСТУР РЫБОК (Высокая детализация)
+        // ==========================================
+        function createFishSkinTexture(type) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+
+            // Функция отрисовки чешуек
+            function drawScales(opacity = 0.14) {
+                ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+                ctx.lineWidth = 1.2;
+                const stepX = 16;
+                const stepY = 14;
+                for (let x = 40; x < 440; x += stepX) {
+                    for (let y = 10; y < 246; y += stepY) {
+                        const offsetY = (Math.floor(x / stepX) % 2) * (stepY / 2);
+                        ctx.beginPath();
+                        ctx.arc(x, y + offsetY, 9, -Math.PI * 0.45, Math.PI * 0.45);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Функция затемнения спинки и высветления брюшка для объема
+            function applyShading() {
+                const shade = ctx.createLinearGradient(0, 0, 0, 256);
+                shade.addColorStop(0, 'rgba(0, 0, 0, 0.45)');
+                shade.addColorStop(0.25, 'rgba(0, 0, 0, 0.0)');
+                shade.addColorStop(0.75, 'rgba(255, 255, 255, 0.05)');
+                shade.addColorStop(1, 'rgba(255, 245, 220, 0.35)');
+                ctx.fillStyle = shade;
+                ctx.fillRect(0, 0, 512, 256);
+            }
+
+            if (type === 'clown') {
+                // Ярко-оранжевая рыба-клоун с белыми полосами в черной обводке (справа внизу на референсе)
+                const grad = ctx.createLinearGradient(0, 0, 0, 256);
+                grad.addColorStop(0, '#d93800');
+                grad.addColorStop(0.4, '#ff5e00');
+                grad.addColorStop(0.85, '#ff8811');
+                grad.addColorStop(1, '#ffb347');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 512, 256);
+
+                const drawBand = (x, width, curve) => {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(x - width / 2, 0);
+                    ctx.quadraticCurveTo(x + curve, 128, x - width / 2, 256);
+                    ctx.lineTo(x + width / 2, 256);
+                    ctx.quadraticCurveTo(x + curve + width, 128, x + width / 2, 0);
+                    ctx.closePath();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fill();
+                    ctx.lineWidth = 10;
+                    ctx.strokeStyle = '#140c08';
+                    ctx.stroke();
+                    ctx.restore();
+                };
+
+                drawBand(135, 42, -15);
+                drawBand(265, 52, 25);
+                drawBand(405, 34, 10);
+                drawScales(0.12);
+                applyShading();
+
+            } else if (type === 'yellow_striped') {
+                // Желто-золотая рыбка с вертикальными тигровыми полосками (в центре на референсе)
+                const grad = ctx.createLinearGradient(0, 0, 0, 256);
+                grad.addColorStop(0, '#c27800');
+                grad.addColorStop(0.3, '#ffae00');
+                grad.addColorStop(0.75, '#ffd000');
+                grad.addColorStop(1, '#fff199');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 512, 256);
+
+                ctx.fillStyle = 'rgba(110, 45, 0, 0.58)';
+                for (let x = 120; x < 395; x += 28) {
+                    ctx.beginPath();
+                    ctx.ellipse(x, 128, 7, 92, 0.08, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                drawScales(0.18);
+                applyShading();
+
+            } else if (type === 'magenta_gold') {
+                // Розово-пурпурная с лимонной спинкой и грудкой (сверху по центру на референсе)
+                const grad = ctx.createLinearGradient(0, 0, 0, 256);
+                grad.addColorStop(0, '#d4e81e');
+                grad.addColorStop(0.22, '#e04096');
+                grad.addColorStop(0.55, '#a82275');
+                grad.addColorStop(0.82, '#f59e0b');
+                grad.addColorStop(1, '#fef08a');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 512, 256);
+
+                // Полоски
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+                for (let x = 140; x < 370; x += 42) {
+                    ctx.fillRect(x, 30, 12, 196);
+                }
+                drawScales(0.2);
+                applyShading();
+
+            } else if (type === 'red_neon') {
+                // Темно-рубиновая с серебристо-голубой полосой и красным хвостом (слева сверху на референсе)
+                const grad = ctx.createLinearGradient(0, 0, 0, 256);
+                grad.addColorStop(0, '#1f242d');
+                grad.addColorStop(0.35, '#475569');
+                grad.addColorStop(0.52, '#cbd5e1');
+                grad.addColorStop(0.68, '#dc2626');
+                grad.addColorStop(1, '#fca5a5');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 512, 256);
+
+                // Диагональные штрихи
+                ctx.strokeStyle = 'rgba(20, 20, 30, 0.5)';
+                ctx.lineWidth = 6;
+                for (let x = 130; x < 380; x += 22) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 40);
+                    ctx.lineTo(x + 20, 200);
+                    ctx.stroke();
+                }
+
+                // Ярко-красная голова и грудка
+                const headGrad = ctx.createRadialGradient(70, 165, 10, 90, 150, 110);
+                headGrad.addColorStop(0, '#ff2a00');
+                headGrad.addColorStop(1, 'rgba(255, 42, 0, 0)');
+                ctx.fillStyle = headGrad;
+                ctx.fillRect(0, 0, 220, 256);
+
+                drawScales(0.16);
+                applyShading();
+
+            } else if (type === 'butterfly') {
+                // Оранжево-перламутровая рыба-бабочка с голубыми и алыми полосами (справа сверху на референсе)
+                const grad = ctx.createLinearGradient(0, 0, 512, 256);
+                grad.addColorStop(0, '#ff6b00');
+                grad.addColorStop(0.45, '#ffa726');
+                grad.addColorStop(0.7, '#e2e8f0');
+                grad.addColorStop(1, '#ff7b00');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 512, 256);
+
+                ctx.strokeStyle = '#0284c7';
+                ctx.lineWidth = 10;
+                for (let x = 190; x < 380; x += 34) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 20);
+                    ctx.quadraticCurveTo(x - 20, 128, x, 236);
+                    ctx.stroke();
+                }
+                drawScales(0.18);
+                applyShading();
+
+            } else if (type === 'shark') {
+                // Хищная серо-синяя акула со светлым брюшком и жаберными щелями
+                const grad = ctx.createLinearGradient(0, 0, 0, 256);
+                grad.addColorStop(0, '#0f172a');
+                grad.addColorStop(0.45, '#334155');
+                grad.addColorStop(0.68, '#64748b');
+                grad.addColorStop(0.76, '#e2e8f0');
+                grad.addColorStop(1, '#f8fafc');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 512, 256);
+
+                // Пять характерных жаберных щелей акулы
+                ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
+                ctx.lineWidth = 4;
+                for (let g = 0; g < 5; g++) {
+                    const gx = 128 + g * 10;
+                    ctx.beginPath();
+                    ctx.moveTo(gx, 108);
+                    ctx.quadraticCurveTo(gx - 5, 138, gx, 165);
+                    ctx.stroke();
+                }
+
+                // Хищный оскал у пасти
+                ctx.fillStyle = '#1e293b';
+                ctx.beginPath();
+                ctx.moveTo(15, 165);
+                ctx.quadraticCurveTo(55, 152, 88, 174);
+                ctx.lineTo(50, 182);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                for (let t = 22; t < 80; t += 8) {
+                    ctx.beginPath();
+                    ctx.moveTo(t, 163);
+                    ctx.lineTo(t + 4, 173);
+                    ctx.lineTo(t + 8, 163);
+                    ctx.fill();
+                }
+
+                applyShading();
+
+            } else {
+                // Золотая рыбка (внизу слева на референсе)
+                const grad = ctx.createLinearGradient(0, 0, 0, 256);
+                grad.addColorStop(0, '#ea580c');
+                grad.addColorStop(0.45, '#f97316');
+                grad.addColorStop(0.8, '#fbbf24');
+                grad.addColorStop(1, '#fef3c7');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 512, 256);
+
+                ctx.fillStyle = 'rgba(180, 50, 0, 0.25)';
+                for (let x = 130; x < 380; x += 26) {
+                    ctx.fillRect(x, 35, 8, 175);
+                }
+                drawScales(0.22);
+                applyShading();
+            }
+
+            // Жаберная крышка для реализма
+            ctx.strokeStyle = 'rgba(30, 10, 0, 0.45)';
+            ctx.lineWidth = 4.5;
+            ctx.beginPath();
+            ctx.arc(105, 132, 52, -0.85, 0.95);
+            ctx.stroke();
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.needsUpdate = true;
+            return tex;
+        }
+
+        // Текстура полупрозрачных плавников с лучами
+        function createFinTexture(primaryColor, secondaryColor) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+
+            const grad = ctx.createLinearGradient(0, 128, 256, 128);
+            grad.addColorStop(0, primaryColor);
+            grad.addColorStop(0.65, secondaryColor);
+            grad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 256, 256);
+
+            // Прожилки плавника
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.lineWidth = 2;
+            for (let y = 10; y < 246; y += 12) {
+                ctx.beginPath();
+                ctx.moveTo(0, 128 + (y - 128) * 0.35);
+                ctx.lineTo(250, y);
+                ctx.stroke();
+            }
+
+            const tex = new THREE.CanvasTexture(canvas);
+            return tex;
+        }
+
+        // ==========================================
+        // СОЗДАНИЕ 3D МОДЕЛИ РЫБКИ С ЖИВОЙ АНИМАЦИЕЙ
+        // ==========================================
+        function createRealisticFish(config) {
+            const fishGroup = new THREE.Group();
+
+            // 1. Геометрия тела на основе сферы с анатомической трансформацией
+            const bodyGeo = new THREE.SphereGeometry(1, 44, 28);
+            const posAttr = bodyGeo.attributes.position;
+            const uvAttr = bodyGeo.attributes.uv;
+
+            const L = config.length || 1.65;
+            const H = config.height || 0.72;
+            const W = config.width || 0.32;
+
+            for (let i = 0; i < posAttr.count; i++) {
+                let x = posAttr.getX(i); // от -1 (голова) до +1 (хвост)
+                let y = posAttr.getY(i); // от -1 (брюшко) до +1 (спинка)
+                let z = posAttr.getZ(i); // толщина
+
+                const u = THREE.MathUtils.clamp((x + 1) * 0.5, 0, 1); // 0 = нос, 1 = основание хвоста
+
+                // Профиль высоты тела рыбы
+                let profileY = H;
+                if (u < 0.28) {
+                    // Заострение к носу
+                    profileY = H * Math.pow(Math.max(0, u / 0.28), 0.62) * 0.95 + 0.04;
+                } else {
+                    // Плавное сужение к хвостовому стеблю
+                    const t = Math.max(0, (u - 0.28) / 0.72);
+                    profileY = H * (1 - 0.80 * Math.pow(t, 1.35));
+                }
+
+                // Профиль толщины тела
+                let profileZ = W * Math.sin(Math.pow(u, 0.75) * Math.PI);
+                if (u > 0.82) profileZ = Math.max(profileZ, 0.045);
+
+                // Легкая асимметрия спинки и брюшка
+                let finalY = y * profileY;
+                if (y > 0) finalY *= 1.08;
+
+                posAttr.setXYZ(i, x * (L * 0.5), finalY, z * profileZ);
+
+                // Точный UV-маппинг для боковой текстуры
+                const v = THREE.MathUtils.clamp((y + 1) * 0.5, 0, 1);
+                uvAttr.setXY(i, u, 1 - v);
+            }
+
+            bodyGeo.computeVertexNormals();
+
+            // Сохраним базовые координаты вершин для волнообразного изгиба при плавании
+            const basePositions = new Float32Array(posAttr.array.length);
+            basePositions.set(posAttr.array);
+
+            const skinTexture = createFishSkinTexture(config.type);
+            const bodyMat = new THREE.MeshPhysicalMaterial({
+                map: skinTexture,
+                roughness: 0.22,
+                metalness: 0.08,
+                clearcoat: 0.85,
+                clearcoatRoughness: 0.15,
+                reflectivity: 0.7
+            });
+
+            const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+            fishGroup.add(bodyMesh);
+
+            // 2. Плавники (Хвостовой, Спинной, Брюшные, Боковые грудные)
+            const finTex = createFinTexture(config.finColor1 || '#ff7700', config.finColor2 || '#ffcc00');
+            const finMat = new THREE.MeshPhysicalMaterial({
+                map: finTex,
+                transparent: true,
+                opacity: 0.88,
+                roughness: 0.3,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+
+            // Хвостовой плавник (вилкообразный/веерный)
+            const tailShape = new THREE.Shape();
+            const tailH = H * 0.95;
+            const tailL = L * 0.42;
+            tailShape.moveTo(0, -0.07);
+            tailShape.quadraticCurveTo(tailL * 0.5, -tailH * 0.65, tailL, -tailH);
+            tailShape.quadraticCurveTo(tailL * 0.72, 0, tailL, tailH);
+            tailShape.quadraticCurveTo(tailL * 0.5, tailH * 0.65, 0, 0.07);
+            tailShape.closePath();
+
+            const tailGeo = new THREE.ShapeGeometry(tailShape, 12);
+            // Корректировка UV для хвоста
+            const tailPos = tailGeo.attributes.position;
+            const tailUV = tailGeo.attributes.uv;
+            for (let i = 0; i < tailPos.count; i++) {
+                tailUV.setXY(i, tailPos.getX(i) / tailL, (tailPos.getY(i) + tailH) / (2 * tailH));
+            }
+            const tailMesh = new THREE.Mesh(tailGeo, finMat);
+            tailMesh.position.set(L * 0.46, 0, 0);
+            fishGroup.add(tailMesh);
+
+            // Спинной плавник (для акулы делаем острый высокий треугольный плавник)
+            const dorsalShape = new THREE.Shape();
+            if (config.type === 'shark') {
+                dorsalShape.moveTo(-L * 0.12, 0);
+                dorsalShape.quadraticCurveTo(-L * 0.02, H * 1.15, L * 0.14, H * 1.25);
+                dorsalShape.quadraticCurveTo(L * 0.06, H * 0.45, L * 0.18, -0.05);
+            } else {
+                dorsalShape.moveTo(-L * 0.18, 0);
+                dorsalShape.quadraticCurveTo(0, H * 0.75, L * 0.32, H * 0.42);
+                dorsalShape.quadraticCurveTo(L * 0.25, H * 0.1, L * 0.22, -0.05);
+            }
+            dorsalShape.closePath();
+            const dorsalGeo = new THREE.ShapeGeometry(dorsalShape, 8);
+            const dorsalMesh = new THREE.Mesh(dorsalGeo, finMat);
+            dorsalMesh.position.set(0.02, H * 0.72, 0);
+            fishGroup.add(dorsalMesh);
+
+            // Анальный (нижний) плавник
+            const ventralShape = new THREE.Shape();
+            ventralShape.moveTo(-L * 0.05, 0);
+            ventralShape.quadraticCurveTo(L * 0.12, -H * 0.55, L * 0.28, -H * 0.35);
+            ventralShape.lineTo(L * 0.20, 0.05);
+            ventralShape.closePath();
+            const ventralGeo = new THREE.ShapeGeometry(ventralShape, 6);
+            const ventralMesh = new THREE.Mesh(ventralGeo, finMat);
+            ventralMesh.position.set(0.08, -H * 0.62, 0);
+            fishGroup.add(ventralMesh);
+
+            // Боковые грудные плавники (машут при плавании)
+            const pecShape = new THREE.Shape();
+            pecShape.moveTo(0, 0);
+            pecShape.quadraticCurveTo(L * 0.16, -H * 0.28, L * 0.22, -H * 0.08);
+            pecShape.quadraticCurveTo(L * 0.14, H * 0.18, 0, 0.05);
+            pecShape.closePath();
+            const pecGeo = new THREE.ShapeGeometry(pecShape, 6);
+
+            const pecLeft = new THREE.Mesh(pecGeo, finMat);
+            pecLeft.position.set(-L * 0.18, -H * 0.12, W * 0.78);
+            pecLeft.rotation.y = 0.45;
+            pecLeft.rotation.z = -0.15;
+            fishGroup.add(pecLeft);
+
+            const pecRight = new THREE.Mesh(pecGeo, finMat);
+            pecRight.position.set(-L * 0.18, -H * 0.12, -W * 0.78);
+            pecRight.rotation.y = -0.45;
+            pecRight.rotation.z = -0.15;
+            fishGroup.add(pecRight);
+
+            // 3. Реалистичные 3D глаза (золотистая радужка + черный глянцевый зрачок)
+            const eyeRadius = H * 0.16;
+            const irisGeo = new THREE.SphereGeometry(eyeRadius, 16, 16);
+            const irisMat = new THREE.MeshStandardMaterial({ color: 0xffd166, roughness: 0.2, metalness: 0.4 });
+            const pupilGeo = new THREE.SphereGeometry(eyeRadius * 0.68, 14, 14);
+            const pupilMat = new THREE.MeshPhysicalMaterial({ color: 0x050505, roughness: 0.05, clearcoat: 1.0 });
+
+            const createEye = (side) => {
+                const eyeGroup = new THREE.Group();
+                const iris = new THREE.Mesh(irisGeo, irisMat);
+                iris.scale.set(1, 1, 0.6);
+                const pupil = new THREE.Mesh(pupilGeo, pupilMat);
+                pupil.position.z = side * eyeRadius * 0.35;
+                pupil.scale.set(1, 1, 0.65);
+                eyeGroup.add(iris, pupil);
+                eyeGroup.position.set(-L * 0.33, H * 0.16, side * W * 0.68);
+                eyeGroup.rotation.y = side * 0.28;
+                return eyeGroup;
+            };
+
+            fishGroup.add(createEye(1), createEye(-1));
+
+            // Общий масштаб
+            const scale = config.scale || 1.0;
+            fishGroup.scale.set(scale, scale, scale);
+
+            return {
+                group: fishGroup,
+                bodyMesh,
+                basePositions,
+                tailMesh,
+                pecLeft,
+                pecRight,
+                dorsalMesh,
+                length: L,
+                speed: config.speed || (1.3 + Math.random() * 0.7),
+                phase: Math.random() * Math.PI * 2,
+                position: new THREE.Vector3(),
+                velocity: new THREE.Vector3((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 2).normalize(),
+                targetPos: new THREE.Vector3(),
+                changeTargetTimer: 0
+            };
+        }
+
+        // ==========================================
+        // КАМНИ, МОХ, ВОДОРОСЛИ И ПУШИСТЫЕ КОРАЛЛЫ
+        // ==========================================
+        function createSeabedAndRocks() {
+            const seabedGroup = new THREE.Group();
+
+            // 1. Песчано-галечная подушка на дне сферы
+            const sandGeo = new THREE.SphereGeometry(BOWL_RADIUS * 0.96, 48, 32, 0, Math.PI * 2, Math.PI * 0.73, Math.PI * 0.27);
+            const sandMat = new THREE.MeshStandardMaterial({
+                color: 0x3b424c,
+                roughness: 0.92,
+                metalness: 0.05,
+                side: THREE.DoubleSide
+            });
+            const sandCap = new THREE.Mesh(sandGeo, sandMat);
+            seabedGroup.add(sandCap);
+
+            // Закрываем верх среза дна неровной поверхностью
+            const floorY = -BOWL_RADIUS * Math.cos(Math.PI * 0.27); // около -6.6
+            const floorRadius = BOWL_RADIUS * Math.sin(Math.PI * 0.27) * 0.95; // около 7.1
+            const topDiskGeo = new THREE.CircleGeometry(floorRadius, 48);
+            topDiskGeo.rotateX(-Math.PI / 2);
+            const topDisk = new THREE.Mesh(topDiskGeo, new THREE.MeshStandardMaterial({
+                color: 0x525b66,
+                roughness: 0.95
+            }));
+            topDisk.position.y = floorY;
+            seabedGroup.add(topDisk);
+
+            // 2. Генератор реалистичных камней со мхом (как на картинке)
+            function createDetailedRock(radius, isMossy) {
+                const geo = new THREE.IcosahedronGeometry(radius, 3);
+                const pos = geo.attributes.position;
+                const colors = [];
+
+                const seed1 = Math.random() * 10;
+                const seed2 = Math.random() * 10;
+
+                for (let i = 0; i < pos.count; i++) {
+                    let vx = pos.getX(i);
+                    let vy = pos.getY(i);
+                    let vz = pos.getZ(i);
+
+                    // Мультичастотный шум для каменных граней
+                    const n1 = Math.sin(vx * 1.8 + seed1) * Math.cos(vy * 1.8 + seed2) * Math.sin(vz * 1.8);
+                    const n2 = Math.sin(vx * 4.2 + seed2) * Math.cos(vz * 4.2 + seed1) * 0.25;
+                    const factor = 1 + n1 * 0.28 + n2 * 0.12;
+
+                    vx *= factor;
+                    vy *= factor * 0.72; // чуть сплюснутые валуны
+                    vz *= factor;
+                    pos.setXYZ(i, vx, vy, vz);
+
+                    // Раскраска вершин: серый гранит + зеленый мох на верхних гранях
+                    const normY = vy / radius;
+                    const mossChance = normY + n1 * 0.35;
+                    if (isMossy && mossChance > 0.22) {
+                        // Насыщенный зеленый мох
+                        colors.push(0.28 + Math.random() * 0.12, 0.52 + Math.random() * 0.16, 0.12 + Math.random() * 0.08);
+                    } else {
+                        // Светло-серый и темно-серый камень
+                        const shade = 0.52 + n1 * 0.25 + (Math.random() - 0.5) * 0.08;
+                        colors.push(shade, shade * 1.02, shade * 1.05);
+                    }
+                }
+
+                geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+                geo.computeVertexNormals();
+
+                const mat = new THREE.MeshStandardMaterial({
+                    vertexColors: true,
+                    roughness: 0.88,
+                    metalness: 0.06
+                });
+                return new THREE.Mesh(geo, mat);
+            }
+
+            // Крупные валуны по кругу и в центре дна
+            const rockConfigs = [
+                { x: -3.8, y: -6.1, z: 2.8, r: 1.85, moss: true },
+                { x: -1.2, y: -6.2, z: 3.8, r: 1.65, moss: true },
+                { x: 1.5, y: -5.9, z: 3.4, r: 2.1, moss: true },
+                { x: 4.2, y: -5.8, z: 2.2, r: 1.75, moss: true },
+                { x: -5.1, y: -5.5, z: -0.2, r: 1.9, moss: false },
+                { x: 5.2, y: -5.4, z: -0.5, r: 2.0, moss: true },
+                { x: -3.2, y: -6.0, z: -3.2, r: 1.7, moss: false },
+                { x: 0.4, y: -6.2, z: -3.8, r: 1.85, moss: true },
+                { x: 3.5, y: -5.9, z: -2.8, r: 1.65, moss: false },
+                { x: 0.0, y: -6.3, z: 0.8, r: 1.9, moss: true }
+            ];
+
+            rockConfigs.forEach(rc => {
+                const rock = createDetailedRock(rc.r, rc.moss);
+                rock.position.set(rc.x, rc.y, rc.z);
+                rock.rotation.set(Math.random() * 0.5, Math.random() * Math.PI * 2, Math.random() * 0.5);
+                seabedGroup.add(rock);
+            });
+
+            // 65 мелких камушков (галька) по всему дну
+            for (let i = 0; i < 65; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.sqrt(Math.random()) * 6.4;
+                const px = Math.cos(angle) * dist;
+                const pz = Math.sin(angle) * dist;
+                const py = -Math.sqrt(Math.max(1, (BOWL_RADIUS - 0.85) ** 2 - px * px - pz * pz)) + 0.35;
+
+                const pebble = createDetailedRock(0.28 + Math.random() * 0.55, Math.random() > 0.6);
+                pebble.position.set(px, Math.max(py, -6.55), pz);
+                pebble.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+                seabedGroup.add(pebble);
+            }
+
+            return seabedGroup;
+        }
+
+        // Создание коралловых кустов и ветвистых золотистых водорослей (как на референсе)
+        function createCoralAndFlora() {
+            const floraGroup = new THREE.Group();
+
+            // 1. Высокие пушистые золотисто-желтые и розовые водоросли-кораллы
+            function createBranchedCoralTree(basePos, height, colorHex, bushiness) {
+                const treeGroup = new THREE.Group();
+                treeGroup.position.copy(basePos);
+
+                const mat = new THREE.MeshStandardMaterial({
+                    color: colorHex,
+                    roughness: 0.65,
+                    emissive: colorHex,
+                    emissiveIntensity: 0.14
+                });
+
+                const stemCount = bushiness || 7;
+                for (let s = 0; s < stemCount; s++) {
+                    const stemAngle = (s / stemCount) * Math.PI * 2 + Math.random() * 0.5;
+                    const spread = 0.2 + Math.random() * 0.85;
+                    const stemH = height * (0.65 + Math.random() * 0.45);
+
+                    const points = [];
+                    const segs = 7;
+                    for (let j = 0; j <= segs; j++) {
+                        const t = j / segs;
+                        const r = spread * Math.pow(t, 0.85);
+                        const wx = Math.cos(stemAngle + t * 0.7) * r + Math.sin(t * 4 + s) * 0.22;
+                        const wy = t * stemH;
+                        const wz = Math.sin(stemAngle + t * 0.7) * r + Math.cos(t * 4 + s) * 0.22;
+                        points.push(new THREE.Vector3(wx, wy, wz));
+                    }
+
+                    const curve = new THREE.CatmullRomCurve3(points);
+                    const tubeGeo = new THREE.TubeGeometry(curve, 16, 0.11, 6, false);
+                    const tubeMesh = new THREE.Mesh(tubeGeo, mat);
+                    treeGroup.add(tubeMesh);
+
+                    // Пушистые соцветия вдоль стебля для текстуры кораллового куста
+                    const frondGeo = new THREE.IcosahedronGeometry(0.24, 1);
+                    for (let k = 2; k <= 14; k++) {
+                        const pt = curve.getPoint(k / 14);
+                        const cluster = new THREE.Mesh(frondGeo, mat);
+                        const sc = (1 - (k / 14) * 0.45) * (0.8 + Math.random() * 0.6);
+                        cluster.scale.set(sc * 1.2, sc * 0.85, sc * 1.2);
+                        cluster.position.set(
+                            pt.x + (Math.random() - 0.5) * 0.25,
+                            pt.y + (Math.random() - 0.5) * 0.2,
+                            pt.z + (Math.random() - 0.5) * 0.25
+                        );
+                        cluster.rotation.set(Math.random() * 3, Math.random() * 3, 0);
+                        treeGroup.add(cluster);
+                    }
+                }
+
+                corals.push({
+                    group: treeGroup,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: 1.1 + Math.random() * 0.5
+                });
+
+                return treeGroup;
+            }
+
+            // Левый высокий золотистый коралловый куст (как на фото)
+            floraGroup.add(createBranchedCoralTree(new THREE.Vector3(-4.2, -5.6, -0.5), 7.2, 0xeab308, 9));
+            // Левый задний сиренево-розовый куст
+            floraGroup.add(createBranchedCoralTree(new THREE.Vector3(-5.0, -5.2, -2.5), 6.8, 0xd9779b, 7));
+            // Центрально-правый высокий золотистый куст (сквозь который идут пузырьки)
+            floraGroup.add(createBranchedCoralTree(new THREE.Vector3(1.5, -5.8, -1.2), 7.8, 0xf59e0b, 8));
+            // Правый пышный кораллово-розовый куст
+            floraGroup.add(createBranchedCoralTree(new THREE.Vector3(4.8, -5.3, 0.4), 5.6, 0xf47280, 8));
+
+            // 2. Мягкие губчатые кораллы на дне (красно-оранжевые и ярко-желтые шапки)
+            function createSpongeMound(pos, radius, colorHex) {
+                const moundGroup = new THREE.Group();
+                moundGroup.position.copy(pos);
+
+                const mat = new THREE.MeshStandardMaterial({
+                    color: colorHex,
+                    roughness: 0.75,
+                    emissive: colorHex,
+                    emissiveIntensity: 0.15
+                });
+
+                const blobGeo = new THREE.IcosahedronGeometry(radius * 0.42, 2);
+                for (let i = 0; i < 24; i++) {
+                    const blob = new THREE.Mesh(blobGeo, mat);
+                    const phi = Math.acos(1 - Math.random() * 0.85);
+                    const theta = Math.random() * Math.PI * 2;
+                    const r = radius * (0.45 + Math.random() * 0.5);
+                    blob.position.set(
+                        r * Math.sin(phi) * Math.cos(theta),
+                        r * Math.cos(phi) * 0.75,
+                        r * Math.sin(phi) * Math.sin(theta)
+                    );
+                    const s = 0.6 + Math.random() * 0.8;
+                    blob.scale.set(s, s * 0.85, s);
+                    moundGroup.add(blob);
+                }
+
+                corals.push({
+                    group: moundGroup,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: 0.8
+                });
+                return moundGroup;
+            }
+
+            // Центральный оранжево-коралловый риф
+            floraGroup.add(createSpongeMound(new THREE.Vector3(-0.3, -5.6, 1.4), 2.1, 0xf95738));
+            // Левый красный коралл у золотой рыбки
+            floraGroup.add(createSpongeMound(new THREE.Vector3(-3.0, -5.8, 2.2), 1.6, 0xe63946));
+            // Ярко-желтый коралл справа внизу
+            floraGroup.add(createSpongeMound(new THREE.Vector3(3.4, -5.7, 2.3), 1.55, 0xffbe0b));
+            // Оранжевый коралл чуть левее центра
+            floraGroup.add(createSpongeMound(new THREE.Vector3(-1.6, -5.9, 2.6), 1.25, 0xfb8500));
+
+            // 3. Зеленые ленточные травинки (мягко колышутся в воде)
+            const grassColors = [0x4ade80, 0x22c55e, 0x84cc16, 0x10b981];
+            for (let i = 0; i < 38; i++) {
+                const h = 1.8 + Math.random() * 3.6;
+                const w = 0.14 + Math.random() * 0.1;
+                const bladeGeo = new THREE.PlaneGeometry(w, h, 1, 10);
+                bladeGeo.translate(0, h / 2, 0); // Точка вращения у корня
+
+                // Сужение травинки к верхушке
+                const pos = bladeGeo.attributes.position;
+                for (let k = 0; k < pos.count; k++) {
+                    const py = pos.getY(k);
+                    const normY = THREE.MathUtils.clamp(py / h, 0, 1);
+                    const taper = 1 - Math.pow(normY, 1.4) * 0.85;
+                    pos.setX(k, pos.getX(k) * taper);
+                }
+                bladeGeo.computeVertexNormals();
+
+                const baseVerts = new Float32Array(pos.array.length);
+                baseVerts.set(pos.array);
+
+                const mat = new THREE.MeshStandardMaterial({
+                    color: grassColors[i % grassColors.length],
+                    roughness: 0.5,
+                    side: THREE.DoubleSide
+                });
+
+                const blade = new THREE.Mesh(bladeGeo, mat);
+                const angle = Math.random() * Math.PI * 2;
+                const rad = 1.5 + Math.random() * 4.8;
+                blade.position.set(
+                    Math.cos(angle) * rad,
+                    -6.2,
+                    Math.sin(angle) * rad
+                );
+                blade.rotation.y = Math.random() * Math.PI * 2;
+
+                floraGroup.add(blade);
+                seaweeds.push({
+                    mesh: blade,
+                    baseVerts,
+                    height: h,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: 1.5 + Math.random() * 1.2
+                });
+            }
+
+            return floraGroup;
+        }
+
+        // ==========================================
+        // СТЕКЛЯННАЯ СФЕРА С РЕАЛИСТИЧНЫМИ БЛИКАМИ И ВОДНОЙ ГЛАДЬЮ
+        // ==========================================
+        function createGlassBowl() {
+            const bowlGroup = new THREE.Group();
+
+            // 1. Внутренний объем воды (легкое голубое свечение глубины)
+            const waterVolumeGeo = new THREE.SphereGeometry(BOWL_RADIUS * 0.975, 64, 48, 0, Math.PI * 2, Math.PI * 0.17, Math.PI * 0.83);
+            const waterVolumeMat = new THREE.MeshPhysicalMaterial({
+                color: 0x054a68,
+                transparent: true,
+                opacity: 0.20,
+                roughness: 0.1,
+                side: THREE.BackSide,
+                depthWrite: false
+            });
+            bowlGroup.add(new THREE.Mesh(waterVolumeGeo, waterVolumeMat));
+
+            // 2. Поверхность воды сверху (мениск на высоте Y = +8.6)
+            const waterTopY = BOWL_RADIUS * Math.cos(Math.PI * 0.17);
+            const waterTopR = BOWL_RADIUS * Math.sin(Math.PI * 0.17) * 0.975;
+            const meniscusGeo = new THREE.RingGeometry(0.01, waterTopR, 64, 4);
+            meniscusGeo.rotateX(-Math.PI / 2);
+            const meniscusMat = new THREE.MeshPhysicalMaterial({
+                color: 0x7dd3fc,
+                transparent: true,
+                opacity: 0.42,
+                roughness: 0.08,
+                metalness: 0.1,
+                clearcoat: 1.0,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+            const meniscus = new THREE.Mesh(meniscusGeo, meniscusMat);
+            meniscus.position.y = waterTopY;
+            bowlGroup.add(meniscus);
+
+            // Светящийся ободок воды у стекла
+            const rimRingGeo = new THREE.TorusGeometry(waterTopR, 0.07, 16, 80);
+            rimRingGeo.rotateX(Math.PI / 2);
+            const rimRingMat = new THREE.MeshBasicMaterial({
+                color: 0xe0f7fa,
+                transparent: true,
+                opacity: 0.75
+            });
+            const rimRing = new THREE.Mesh(rimRingGeo, rimRingMat);
+            rimRing.position.y = waterTopY;
+            bowlGroup.add(rimRing);
+
+            // 3. Внешнее стекло аквариума с эффектом Френеля и бликами
+            const glassGeo = new THREE.SphereGeometry(BOWL_RADIUS, 64, 64, 0, Math.PI * 2, Math.PI * 0.11, Math.PI * 0.82);
+            const glassMat = new THREE.MeshPhysicalMaterial({
+                color: 0xdbeafe,
+                transparent: true,
+                opacity: 0.24,
+                roughness: 0.04,
+                metalness: 0.05,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.02,
+                reflectivity: 1.0,
+                side: THREE.FrontSide,
+                depthWrite: false
+            });
+            const glassMesh = new THREE.Mesh(glassGeo, glassMat);
+            bowlGroup.add(glassMesh);
+
+            // 4. Фирменный дугообразный белый блик сверху (как на прикрепленной картинке)
+            const highlightGeo = new THREE.SphereGeometry(
+                BOWL_RADIUS * 0.992,
+                48,
+                24,
+                -Math.PI * 0.35,
+                Math.PI * 0.7,
+                Math.PI * 0.13,
+                Math.PI * 0.12
+            );
+            const highlightMat = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.55,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+            const highlightArch = new THREE.Mesh(highlightGeo, highlightMat);
+            highlightArch.rotation.y = Math.PI * 0.5;
+            bowlGroup.add(highlightArch);
+
+            // 5. Стеклянное основание-ножка внизу
+            const baseCylinderGeo = new THREE.CylinderGeometry(5.2, 5.8, 0.65, 48);
+            const baseGlassMat = new THREE.MeshPhysicalMaterial({
+                color: 0x38bdf8,
+                transparent: true,
+                opacity: 0.45,
+                roughness: 0.15,
+                metalness: 0.2,
+                clearcoat: 1.0
+            });
+            const baseStand = new THREE.Mesh(baseCylinderGeo, baseGlassMat);
+            baseStand.position.y = -BOWL_RADIUS * 0.94;
+            bowlGroup.add(baseStand);
+
+            return { bowlGroup, meniscus };
+        }
+
+        // ==========================================
+        // ПУЗЫРЬКИ ВОЗДУХА (Мелкий поток аэрации + крупные глянцевые пузырьки)
+        // ==========================================
+        let largeBubbles = [];
+
+        function createBubbles() {
+            const bubbleGroup = new THREE.Group();
+
+            // 1. Тысяча мелких пузырьков, поднимающихся со дна (особенно густо справа, как на референсе)
+            const count = 900;
+            const geo = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+
+            for (let i = 0; i < count; i++) {
+                const isMainStream = i < 550; // Густая струя у золотистого коралла
+                const bx = isMainStream ? (1.6 + (Math.random() - 0.5) * 1.5) : ((Math.random() - 0.5) * 11);
+                const bz = isMainStream ? (-1.0 + (Math.random() - 0.5) * 1.5) : ((Math.random() - 0.5) * 11);
+                const by = -5.8 + Math.random() * 14.0;
+
+                positions[i * 3] = bx;
+                positions[i * 3 + 1] = by;
+                positions[i * 3 + 2] = bz;
+
+                bubbleData.push({
+                    baseX: bx,
+                    baseZ: bz,
+                    speed: 2.2 + Math.random() * 2.8,
+                    wobble: Math.random() * Math.PI * 2,
+                    isMainStream
+                });
+            }
+
+            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            // Круглая текстура с бликом для частиц
+            const pCanvas = document.createElement('canvas');
+            pCanvas.width = 64;
+            pCanvas.height = 64;
+            const pCtx = pCanvas.getContext('2d');
+            const pGrad = pCtx.createRadialGradient(24, 24, 2, 32, 32, 28);
+            pGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            pGrad.addColorStop(0.5, 'rgba(186, 230, 253, 0.75)');
+            pGrad.addColorStop(1, 'rgba(186, 230, 253, 0)');
+            pCtx.fillStyle = pGrad;
+            pCtx.fillRect(0, 0, 64, 64);
+
+            const pMat = new THREE.PointsMaterial({
+                size: 0.22,
+                map: new THREE.CanvasTexture(pCanvas),
+                transparent: true,
+                opacity: 0.85,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+
+            bubbleSystem = new THREE.Points(geo, pMat);
+            bubbleGroup.add(bubbleSystem);
+
+            // 2. 45 крупных 3D пузырьков воздуха, сплюснутых потоком воды
+            const sphereGeo = new THREE.SphereGeometry(0.16, 16, 12);
+            const sphereMat = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.55,
+                roughness: 0.05,
+                metalness: 0.1,
+                clearcoat: 1.0
+            });
+
+            for (let i = 0; i < 45; i++) {
+                const bMesh = new THREE.Mesh(sphereGeo, sphereMat);
+                const s = 0.6 + Math.random() * 1.3;
+                bMesh.scale.set(s * 1.25, s * 0.78, s * 1.25); // Сплюснутая форма настоящего пузырька в воде
+                bMesh.position.set(
+                    (Math.random() - 0.5) * 11,
+                    -5.5 + Math.random() * 13.5,
+                    (Math.random() - 0.5) * 11
+                );
+                bubbleGroup.add(bMesh);
+                largeBubbles.push({
+                    mesh: bMesh,
+                    speed: 1.4 + Math.random() * 1.8,
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+
+            return bubbleGroup;
+        }
+
+        // ==========================================
+        // ЗАПУСК И СБОРКА ВСЕЙ СЦЕНЫ
+        // ==========================================
+        let waterMeniscus;
+
+        function initAquarium() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 150);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.15;
+            container.appendChild(renderer.domElement);
+
+            // Освещение как на студийном рендере
+            ambientLight = new THREE.AmbientLight(0x1e4e79, 1.35);
+            scene.add(ambientLight);
+
+            // Верхний прожектор аквариума (создает глубину и блики на рыбках)
+            topLight = new THREE.SpotLight(0xe0f7fa, 4.2);
+            topLight.position.set(0, 22, 4);
+            topLight.angle = Math.PI / 3.2;
+            topLight.penumbra = 0.8;
+            scene.add(topLight);
+
+            // Контровой свет слева и справа для объема стекла и плавников
+            rimLightLeft = new THREE.DirectionalLight(0x38bdf8, 1.8);
+            rimLightLeft.position.set(-18, 6, -10);
+            scene.add(rimLightLeft);
+
+            rimLightRight = new THREE.DirectionalLight(0xffedd5, 1.5);
+            rimLightRight.position.set(18, 8, 12);
+            scene.add(rimLightRight);
+
+            // Подсветка кораллов снизу
+            bottomGlowLight = new THREE.PointLight(0x00b4d8, 2.2, 25);
+            bottomGlowLight.position.set(0, -8, 2);
+            scene.add(bottomGlowLight);
+
+            // Световое пятно на столе под аквариумом (бирюзовый рефлекс, как на картинке)
+            const tableGlowCanvas = document.createElement('canvas');
+            tableGlowCanvas.width = 256;
+            tableGlowCanvas.height = 256;
+            const tgCtx = tableGlowCanvas.getContext('2d');
+            const tgGrad = tgCtx.createRadialGradient(128, 128, 10, 128, 128, 124);
+            tgGrad.addColorStop(0, 'rgba(56, 189, 248, 0.55)');
+            tgGrad.addColorStop(0.45, 'rgba(14, 116, 144, 0.25)');
+            tgGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            tgCtx.fillStyle = tgGrad;
+            tgCtx.fillRect(0, 0, 256, 256);
+
+            const tablePlane = new THREE.Mesh(
+                new THREE.PlaneGeometry(34, 22),
+                new THREE.MeshBasicMaterial({
+                    map: new THREE.CanvasTexture(tableGlowCanvas),
+                    transparent: true,
+                    depthWrite: false
+                })
+            );
+            tablePlane.rotation.x = -Math.PI / 2;
+            tablePlane.position.y = -BOWL_RADIUS * 0.98;
+            scene.add(tablePlane);
+
+            // Главная группа аквариума
+            aquariumGroup = new THREE.Group();
+            scene.add(aquariumGroup);
+
+            // 1. Дно и камни
+            aquariumGroup.add(createSeabedAndRocks());
+
+            // 2. Кораллы и водоросли
+            aquariumGroup.add(createCoralAndFlora());
+
+            // 3. Пузырьки воздуха
+            aquariumGroup.add(createBubbles());
+
+            // 4. Рыбки (все виды с изображения-референса)
+            const initialFishPresets = [
+                {
+                    type: 'yellow_striped',
+                    length: 1.9, height: 0.85, width: 0.36, scale: 1.05,
+                    finColor1: '#ffaa00', finColor2: '#ffee55',
+                    pos: new THREE.Vector3(-1.3, 0.7, 2.2)
+                },
+                {
+                    type: 'clown',
+                    length: 1.85, height: 0.88, width: 0.38, scale: 1.1,
+                    finColor1: '#ff5500', finColor2: '#221100',
+                    pos: new THREE.Vector3(3.4, -1.5, 2.6)
+                },
+                {
+                    type: 'gold',
+                    length: 1.8, height: 0.82, width: 0.36, scale: 1.0,
+                    finColor1: '#ff7700', finColor2: '#ffdd66',
+                    pos: new THREE.Vector3(-2.8, -3.6, 3.0)
+                },
+                {
+                    type: 'red_neon',
+                    length: 1.65, height: 0.65, width: 0.28, scale: 0.92,
+                    finColor1: '#ef4444', finColor2: '#fca5a5',
+                    pos: new THREE.Vector3(-2.1, 3.6, 1.5)
+                },
+                {
+                    type: 'magenta_gold',
+                    length: 1.65, height: 0.75, width: 0.30, scale: 0.92,
+                    finColor1: '#eab308', finColor2: '#ec4899',
+                    pos: new THREE.Vector3(-0.5, 4.1, 1.2)
+                },
+                {
+                    type: 'butterfly',
+                    length: 1.75, height: 0.95, width: 0.32, scale: 0.98,
+                    finColor1: '#f97316', finColor2: '#fde047',
+                    pos: new THREE.Vector3(3.2, 3.1, 1.6)
+                },
+                {
+                    type: 'gold',
+                    length: 1.6, height: 0.76, width: 0.30, scale: 0.85,
+                    finColor1: '#f59e0b', finColor2: '#38bdf8',
+                    pos: new THREE.Vector3(4.5, 1.2, 1.4)
+                },
+                {
+                    type: 'clown',
+                    length: 1.6, height: 0.78, width: 0.34, scale: 0.88,
+                    finColor1: '#ff6600', finColor2: '#ffffff',
+                    pos: new THREE.Vector3(0.5, -1.2, -2.5)
+                }
+            ];
+
+            initialFishPresets.forEach(preset => {
+                spawnFish(preset);
+            });
+
+            // 5. Стеклянная сфера (добавляется последней для корректной прозрачности)
+            const bowlObj = createGlassBowl();
+            waterMeniscus = bowlObj.meniscus;
+            aquariumGroup.add(bowlObj.bowlGroup);
+
+            setupInteractions();
+            onWindowResize();
+        }
+
+        // Функция добавления новой рыбки
+        function spawnFish(preset) {
+            const types = ['clown', 'yellow_striped', 'magenta_gold', 'red_neon', 'butterfly', 'gold'];
+            const chosenType = preset?.type || types[Math.floor(Math.random() * types.length)];
+
+            const fishObj = createRealisticFish({
+                type: chosenType,
+                length: preset?.length || (1.55 + Math.random() * 0.35),
+                height: preset?.height || (0.7 + Math.random() * 0.22),
+                width: preset?.width || 0.33,
+                scale: preset?.scale || (0.85 + Math.random() * 0.25),
+                finColor1: preset?.finColor1 || '#ff7b00',
+                finColor2: preset?.finColor2 || '#fde047'
+            });
+
+            if (preset?.pos) {
+                fishObj.position.copy(preset.pos);
+            } else {
+                fishObj.position.set(
+                    (Math.random() - 0.5) * 7,
+                    -2 + Math.random() * 5,
+                    (Math.random() - 0.5) * 7
+                );
+            }
+
+            pickNewTargetForFish(fishObj);
+            fishObj.group.position.copy(fishObj.position);
+            aquariumGroup.add(fishObj.group);
+            fishes.push(fishObj);
+
+            const counterEl = document.getElementById('fish-count');
+            if (counterEl) counterEl.textContent = fishes.length;
+        }
+
+        // Функция запуска или удаления хищной Акулы
+        function toggleShark() {
+            const btnLabel = document.getElementById('shark-state');
+            if (shark) {
+                aquariumGroup.remove(shark.group);
+                shark = null;
+                if (btnLabel) btnLabel.textContent = '+ Акула';
+                showToast('🦈 Акула убрана из аквариума');
+                return;
+            }
+
+            shark = createRealisticFish({
+                type: 'shark',
+                length: 2.95,
+                height: 0.78,
+                width: 0.42,
+                scale: 1.22,
+                speed: 2.35,
+                finColor1: '#1e293b',
+                finColor2: '#475569'
+            });
+
+            shark.position.set(0, 1.5, 0);
+            pickNewTargetForFish(shark);
+            shark.group.position.copy(shark.position);
+            shark.eatTimer = 0; // Накапливает время до 5 секунд для поедания рыбки
+
+            aquariumGroup.add(shark.group);
+            if (btnLabel) btnLabel.textContent = 'Убрать Акулу';
+            showToast('🦈 Хищная акула запущена! Каждые 5 сек она съедает рыбку!');
+        }
+
+        // Эффект пузырьков и всплеска при поедании рыбки акулой
+        function createBiteEffect(pos) {
+            const group = new THREE.Group();
+            group.position.copy(pos);
+            const geo = new THREE.SphereGeometry(0.09, 8, 8);
+            const mat = new THREE.MeshBasicMaterial({
+                color: 0xf87171,
+                transparent: true,
+                opacity: 0.9
+            });
+
+            const particles = [];
+            for (let i = 0; i < 14; i++) {
+                const p = new THREE.Mesh(geo, mat.clone());
+                const vel = new THREE.Vector3(
+                    (Math.random() - 0.5) * 3.5,
+                    (Math.random() - 0.5) * 3.5,
+                    (Math.random() - 0.5) * 3.5
+                );
+                group.add(p);
+                particles.push({ mesh: p, vel });
+            }
+            aquariumGroup.add(group);
+            biteEffects.push({ group, particles, age: 0 });
+        }
+
+        // Выбор новой точки назначения внутри безопасной водной зоны сферы
+        function pickNewTargetForFish(fish) {
+            for (let attempt = 0; attempt < 10; attempt++) {
+                const r = 2.0 + Math.random() * (WATER_LIMIT - 2.6);
+                const theta = Math.random() * Math.PI * 2;
+                const y = -3.4 + Math.random() * 7.8; // Не врезаться в камни на дне и не выпрыгивать из воды
+                const horizR = Math.sqrt(Math.max(1, r * r - y * y));
+                const tx = Math.cos(theta) * horizR;
+                const tz = Math.sin(theta) * horizR;
+
+                if (tx * tx + y * y + tz * tz < (WATER_LIMIT - 0.8) ** 2) {
+                    fish.targetPos.set(tx, y, tz);
+                    fish.changeTargetTimer = 3.5 + Math.random() * 5.0;
+                    return;
+                }
+            }
+            fish.targetPos.set(0, 0.5, 0);
+            fish.changeTargetTimer = 4.0;
+        }
+
+        // Создание реалистичного извивающегося 3D-червячка (мотыля)
+        function createWormMesh() {
+            const wormGroup = new THREE.Group();
+            const segments = [];
+            const segCount = 9;
+            const segGeo = new THREE.SphereGeometry(0.11, 12, 10);
+
+            for (let s = 0; s < segCount; s++) {
+                // Чередование оттенков сегментов для реалистичного вида червячка
+                const isDark = s % 2 === 0;
+                const segMat = new THREE.MeshPhysicalMaterial({
+                    color: isDark ? 0xdc2626 : 0xf87171,
+                    roughness: 0.25,
+                    metalness: 0.05,
+                    clearcoat: 0.9,
+                    emissive: 0x991b1b,
+                    emissiveIntensity: 0.35
+                });
+                const seg = new THREE.Mesh(segGeo, segMat);
+                // Сужение к кончикам червячка
+                const taper = Math.sin(((s + 0.8) / (segCount + 0.6)) * Math.PI);
+                const radiusScale = 0.55 + taper * 0.65;
+                seg.scale.set(radiusScale, 0.85, radiusScale);
+                seg.position.y = (s - segCount / 2) * 0.11;
+                wormGroup.add(seg);
+                segments.push(seg);
+            }
+
+            return { wormGroup, segments };
+        }
+
+        // Покормить рыбок (появляются от 1 до 3 червячков)
+        function dropFishFood(customPos) {
+            const count = Math.floor(Math.random() * 3) + 1; // Строго от 1 до 3 червячков
+
+            for (let i = 0; i < count; i++) {
+                const { wormGroup, segments } = createWormMesh();
+                const startX = (customPos ? customPos.x : 0) + (Math.random() - 0.5) * 4.2;
+                const startZ = (customPos ? customPos.z : 0) + (Math.random() - 0.5) * 4.2;
+                const startY = 6.2 + Math.random() * 0.8;
+
+                wormGroup.position.set(startX, startY, startZ);
+                wormGroup.rotation.set(
+                    (Math.random() - 0.5) * 0.8,
+                    Math.random() * Math.PI * 2,
+                    (Math.random() - 0.5) * 0.8
+                );
+
+                // Легкий всплеск колечка на воде при падении червячка
+                const rippleGeo = new THREE.RingGeometry(0.1, 0.45, 24);
+                rippleGeo.rotateX(-Math.PI / 2);
+                const rippleMat = new THREE.MeshBasicMaterial({
+                    color: 0xbae6fd,
+                    transparent: true,
+                    opacity: 0.7,
+                    side: THREE.DoubleSide
+                });
+                const ripple = new THREE.Mesh(rippleGeo, rippleMat);
+                ripple.position.set(startX, 8.1, startZ);
+                aquariumGroup.add(ripple);
+                setTimeout(() => aquariumGroup.remove(ripple), 600);
+
+                aquariumGroup.add(wormGroup);
+                foodParticles.push({
+                    mesh: wormGroup,
+                    segments,
+                    velY: -(0.55 + Math.random() * 0.25), // Медленно тонут, чтобы рыбки успевали схватить
+                    wobble: Math.random() * Math.PI * 2,
+                    wiggleSpeed: 9.0 + Math.random() * 4.0
+                });
+            }
+
+            const word = count === 1 ? 'червячок' : 'червячка';
+            showToast(`🪱 Брошено в воду: ${count} ${word}!`);
+        }
+
+        // ==========================================
+        // АНИМАЦИОННЫЙ ЦИКЛ (Физика рыбок, плавников, травы и пузырьков)
+        // ==========================================
+        const clock = new THREE.Clock();
+        const dummyTarget = new THREE.Object3D();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const dt = Math.min(clock.getDelta(), 0.05);
+            const elapsed = clock.getElapsedTime();
+
+            // 1. Плавное обновление камеры
+            if (autoRotate && !isDragging) {
+                targetSpherical.theta += dt * 0.08;
+            }
+            spherical.theta += (targetSpherical.theta - spherical.theta) * 0.08;
+            spherical.phi += (targetSpherical.phi - spherical.phi) * 0.08;
+            spherical.radius += (targetSpherical.radius - spherical.radius) * 0.1;
+
+            camera.position.x = spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+            camera.position.y = spherical.radius * Math.cos(spherical.phi);
+            camera.position.z = spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+            camera.lookAt(0, -0.4, 0);
+
+            // 2. Анимация извивающихся червячков
+            for (let i = foodParticles.length - 1; i >= 0; i--) {
+                const fp = foodParticles[i];
+                // Если червячок еще не упал на самое дно, он плавно опускается
+                if (fp.mesh.position.y > -4.8) {
+                    fp.mesh.position.y += fp.velY * dt;
+                    fp.mesh.position.x += Math.sin(elapsed * 2.2 + fp.wobble) * 0.012;
+                    fp.mesh.position.z += Math.cos(elapsed * 1.9 + fp.wobble) * 0.012;
+                    fp.mesh.rotation.y += dt * 0.8;
+                }
+
+                // Реалистичное извивание сегментов червячка в воде
+                if (fp.segments) {
+                    for (let s = 0; s < fp.segments.length; s++) {
+                        const seg = fp.segments[s];
+                        const wave = elapsed * fp.wiggleSpeed + fp.wobble + s * 0.65;
+                        seg.position.x = Math.sin(wave) * 0.12;
+                        seg.position.z = Math.cos(wave * 0.85) * 0.08;
+                    }
+                }
+            }
+
+            // 3. Реалистичное поведение и биомеханика рыбок
+            fishes.forEach((fish, idx) => {
+                fish.changeTargetTimer -= dt;
+
+                // Если есть червячки в воде, рыбки замечают их из любой точки аквариума и плывут есть
+                let chasingFood = false;
+                if (foodParticles.length > 0) {
+                    let minDist = Infinity;
+                    let closestFood = null;
+                    for (let f = 0; f < foodParticles.length; f++) {
+                        const d = fish.position.distanceTo(foodParticles[f].mesh.position);
+                        if (d < minDist) {
+                            minDist = d;
+                            closestFood = foodParticles[f];
+                        }
+                    }
+                    if (closestFood) {
+                        fish.targetPos.copy(closestFood.mesh.position);
+                        chasingFood = true;
+                        // Рыбка подплыла и съела червячка
+                        if (minDist < 1.15) {
+                            aquariumGroup.remove(closestFood.mesh);
+                            const foodIdx = foodParticles.indexOf(closestFood);
+                            if (foodIdx !== -1) foodParticles.splice(foodIdx, 1);
+                            pickNewTargetForFish(fish);
+                            chasingFood = false;
+                        }
+                    }
+                }
+
+                if (!chasingFood && (fish.changeTargetTimer <= 0 || fish.position.distanceTo(fish.targetPos) < 1.2)) {
+                    pickNewTargetForFish(fish);
+                }
+
+                // Желаемый вектор движения к цели
+                const desiredDir = new THREE.Vector3().subVectors(fish.targetPos, fish.position).normalize();
+
+                // Избегание столкновений со стеклом сферы и дном
+                const distFromCenter = fish.position.length();
+                if (distFromCenter > WATER_LIMIT - 0.8) {
+                    const pushInward = fish.position.clone().normalize().multiplyScalar(-1.8);
+                    desiredDir.add(pushInward).normalize();
+                }
+                if (!chasingFood && fish.position.y < -3.8) {
+                    desiredDir.y += 0.9;
+                    desiredDir.normalize();
+                }
+                if (!chasingFood && fish.position.y > 4.6) {
+                    desiredDir.y -= 0.9;
+                    desiredDir.normalize();
+                }
+
+                // Мягкое отталкивание рыбок друг от друга (ослабляется во время охоты за червячком)
+                for (let j = 0; j < fishes.length; j++) {
+                    if (idx === j) continue;
+                    const other = fishes[j];
+                    const dist = fish.position.distanceTo(other.position);
+                    const minSep = chasingFood ? 0.85 : 1.65;
+                    if (dist < minSep && dist > 0.001) {
+                        const repelForce = chasingFood ? 0.35 : 0.8;
+                        const repel = new THREE.Vector3().subVectors(fish.position, other.position).normalize().multiplyScalar(repelForce / dist);
+                        desiredDir.add(repel).normalize();
+                    }
+                }
+
+                // Ограничение вертикального наклона (во время погони за червячком рыбки могут круто пикировать вверх/вниз)
+                const maxVerticalAngle = chasingFood ? 0.88 : 0.42;
+                desiredDir.y = THREE.MathUtils.clamp(desiredDir.y, -maxVerticalAngle, maxVerticalAngle);
+                desiredDir.normalize();
+
+                // Плавный поворот вектора скорости
+                const turnRate = chasingFood ? 5.5 : 2.1;
+                fish.velocity.lerp(desiredDir, dt * turnRate).normalize();
+
+                const activeSpeed = chasingFood ? fish.speed * 2.1 : fish.speed;
+                fish.position.addScaledVector(fish.velocity, activeSpeed * dt);
+                fish.group.position.copy(fish.position);
+
+                // Ориентация 3D модели рыбки вдоль траектории движения (голова у нас по -X)
+                const lookPoint = fish.position.clone().add(fish.velocity);
+                dummyTarget.position.copy(fish.position);
+                dummyTarget.lookAt(lookPoint);
+                // Поворот на +90 градусов по Y переводит ось -X (нос рыбки) в направление взгляда +Z
+                const alignQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+                dummyTarget.quaternion.multiply(alignQuat);
+                fish.group.quaternion.slerp(dummyTarget.quaternion, dt * 6.5);
+
+                // Живой волнообразный изгиб позвоночника рыбки (S-образная волна от головы к хвосту)
+                const swimFreq = chasingFood ? 14.0 : 8.2;
+                const swimPhase = elapsed * swimFreq + fish.phase;
+                const posAttr = fish.bodyMesh.geometry.attributes.position;
+                const base = fish.basePositions;
+                const halfL = fish.length * 0.5;
+
+                for (let v = 0; v < posAttr.count; v++) {
+                    const bx = base[v * 3];
+                    const by = base[v * 3 + 1];
+                    const bz = base[v * 3 + 2];
+
+                    // u = 0 у носа, u = 1 у хвоста
+                    const u = THREE.MathUtils.clamp((bx + halfL) / fish.length, 0, 1);
+                    const waveAmp = Math.pow(u, 1.55) * 0.16;
+                    const waveOffset = Math.sin(swimPhase - u * 4.5) * waveAmp;
+
+                    posAttr.setZ(v, bz + waveOffset);
+                }
+                posAttr.needsUpdate = true;
+
+                // Движение хвостового и грудных плавников в такт телу
+                const tailOffsetZ = Math.sin(swimPhase - 4.2) * 0.15;
+                fish.tailMesh.position.z = tailOffsetZ;
+                fish.tailMesh.rotation.y = Math.cos(swimPhase - 4.0) * 0.38;
+
+                fish.pecLeft.rotation.y = 0.45 + Math.sin(swimPhase * 1.3) * 0.28;
+                fish.pecRight.rotation.y = -0.45 - Math.sin(swimPhase * 1.3) * 0.28;
+            });
+
+            // 3.1 Поведение хищной Акулы (каждые 5 секунд съедает одну рыбку)
+            if (shark) {
+                let targetVictim = null;
+
+                if (fishes.length > 0) {
+                    shark.eatTimer += dt;
+
+                    // Ищем ближайшую рыбку для преследования
+                    let minDist = Infinity;
+                    let victimIdx = -1;
+                    for (let i = 0; i < fishes.length; i++) {
+                        const d = shark.position.distanceTo(fishes[i].position);
+                        if (d < minDist) {
+                            minDist = d;
+                            victimIdx = i;
+                        }
+                    }
+
+                    if (victimIdx !== -1) {
+                        targetVictim = fishes[victimIdx];
+                        shark.targetPos.copy(targetVictim.position);
+
+                        // Каждые 5 секунд акула совершает бросок и съедает рыбку
+                        if (shark.eatTimer >= 5.0) {
+                            shark.eatTimer -= 5.0;
+
+                            // Перемещаем акулу ближе к жертве в момент броска и съедаем рыбку
+                            constvictimPos = targetVictim.position.clone();
+                            shark.position.lerp(constvictimPos, 0.65);
+                            createBiteEffect(constvictimPos);
+
+                            aquariumGroup.remove(targetVictim.group);
+                            fishes.splice(victimIdx, 1);
+
+                            const counterEl = document.getElementById('fish-count');
+                            if (counterEl) counterEl.textContent = fishes.length;
+
+                            showToast(`🦈 Акула съела рыбку! Осталось рыбок: ${fishes.length}`);
+                        }
+                    }
+                } else {
+                    // Если всех рыбок съели, акула свободно патрулирует аквариум
+                    shark.eatTimer = 0;
+                    shark.changeTargetTimer -= dt;
+                    if (shark.changeTargetTimer <= 0 || shark.position.distanceTo(shark.targetPos) < 1.5) {
+                        pickNewTargetForFish(shark);
+                    }
+                }
+
+                const desiredDir = new THREE.Vector3().subVectors(shark.targetPos, shark.position).normalize();
+                const distFromCenter = shark.position.length();
+                if (distFromCenter > WATER_LIMIT - 1.0) {
+                    const pushInward = shark.position.clone().normalize().multiplyScalar(-2.0);
+                    desiredDir.add(pushInward).normalize();
+                }
+
+                // Когда таймер подходит к 5 секундам, акула резко ускоряется к жертве
+                const isLunging = fishes.length > 0 && shark.eatTimer > 3.6;
+                const turnSpeed = isLunging ? 6.0 : 2.8;
+                const moveSpeed = isLunging ? shark.speed * 1.85 : shark.speed;
+
+                desiredDir.y = THREE.MathUtils.clamp(desiredDir.y, -0.75, 0.75);
+                desiredDir.normalize();
+
+                shark.velocity.lerp(desiredDir, dt * turnSpeed).normalize();
+                shark.position.addScaledVector(shark.velocity, moveSpeed * dt);
+                shark.group.position.copy(shark.position);
+
+                const lookPoint = shark.position.clone().add(shark.velocity);
+                dummyTarget.position.copy(shark.position);
+                dummyTarget.lookAt(lookPoint);
+                const alignQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+                dummyTarget.quaternion.multiply(alignQuat);
+                shark.group.quaternion.slerp(dummyTarget.quaternion, dt * 7.0);
+
+                // Анимация мощного изгиба тела и хвоста акулы
+                const swimFreq = isLunging ? 13.5 : 7.5;
+                const swimPhase = elapsed * swimFreq + shark.phase;
+                const posAttr = shark.bodyMesh.geometry.attributes.position;
+                const base = shark.basePositions;
+                const halfL = shark.length * 0.5;
+
+                for (let v = 0; v < posAttr.count; v++) {
+                    const bx = base[v * 3];
+                    const bz = base[v * 3 + 2];
+                    const u = THREE.MathUtils.clamp((bx + halfL) / shark.length, 0, 1);
+                    const waveAmp = Math.pow(u, 1.5) * 0.22;
+                    const waveOffset = Math.sin(swimPhase - u * 4.5) * waveAmp;
+                    posAttr.setZ(v, bz + waveOffset);
+                }
+                posAttr.needsUpdate = true;
+
+                shark.tailMesh.position.z = Math.sin(swimPhase - 4.2) * 0.22;
+                shark.tailMesh.rotation.y = Math.cos(swimPhase - 4.0) * 0.42;
+                shark.pecLeft.rotation.y = 0.45 + Math.sin(swimPhase * 1.1) * 0.18;
+                shark.pecRight.rotation.y = -0.45 - Math.sin(swimPhase * 1.1) * 0.18;
+            }
+
+            // Анимация всплеска после укуса акулы
+            for (let i = biteEffects.length - 1; i >= 0; i--) {
+                const be = biteEffects[i];
+                be.age += dt;
+                if (be.age > 0.8) {
+                    aquariumGroup.remove(be.group);
+                    biteEffects.splice(i, 1);
+                    continue;
+                }
+                be.particles.forEach(p => {
+                    p.mesh.position.addScaledVector(p.vel, dt);
+                    p.mesh.material.opacity = Math.max(0, 1 - be.age / 0.8);
+                });
+            }
+
+            // 4. Анимация колышущихся водорослей и кораллов
+            seaweeds.forEach(sw => {
+                const posAttr = sw.mesh.geometry.attributes.position;
+                const base = sw.baseVerts;
+                for (let i = 0; i < posAttr.count; i++) {
+                    const bx = base[i * 3];
+                    const by = base[i * 3 + 1];
+                    const bz = base[i * 3 + 2];
+                    const normY = THREE.MathUtils.clamp(by / sw.height, 0, 1);
+                    const factor = Math.pow(normY, 1.4);
+                    const swayX = Math.sin(elapsed * sw.speed + sw.phase + by * 0.9) * 0.32 * factor;
+                    const swayZ = Math.cos(elapsed * (sw.speed * 0.8) + sw.phase + by * 0.7) * 0.22 * factor;
+                    posAttr.setXYZ(i, bx + swayX, by, bz + swayZ);
+                }
+                posAttr.needsUpdate = true;
+            });
+
+            corals.forEach(c => {
+                c.group.rotation.z = Math.sin(elapsed * c.speed + c.phase) * 0.035;
+                c.group.rotation.x = Math.cos(elapsed * (c.speed * 0.8) + c.phase) * 0.025;
+            });
+
+            // 5. Анимация мелких и крупных пузырьков воздуха
+            if (bubbleSystem) {
+                bubbleSystem.visible = bubbleIntensity > 0;
+                if (bubbleIntensity > 0) {
+                    const bPos = bubbleSystem.geometry.attributes.position;
+                    const speedMult = bubbleIntensity === 2 ? 1.0 : 0.55;
+
+                    for (let i = 0; i < bubbleData.length; i++) {
+                        const bd = bubbleData[i];
+                        let py = bPos.getY(i) + bd.speed * speedMult * dt;
+                        let px = bd.baseX + Math.sin(elapsed * 3.5 + bd.wobble + py * 0.6) * 0.18;
+                        let pz = bd.baseZ + Math.cos(elapsed * 3.0 + bd.wobble + py * 0.6) * 0.18;
+
+                        // Если пузырек достиг поверхности воды (Y = 8.4) или вышел за радиус сферы
+                        if (py > 8.3 || (px * px + py * py + pz * pz > (BOWL_RADIUS - 0.5) ** 2)) {
+                            py = -5.6;
+                        }
+                        bPos.setXYZ(i, px, py, pz);
+                    }
+                    bPos.needsUpdate = true;
+                }
+            }
+
+            largeBubbles.forEach((lb, idx) => {
+                lb.mesh.visible = bubbleIntensity > 0 && (bubbleIntensity === 2 || idx % 2 === 0);
+                if (!lb.mesh.visible) return;
+                lb.mesh.position.y += lb.speed * dt;
+                lb.mesh.position.x += Math.sin(elapsed * 4 + lb.phase) * 0.012;
+                if (lb.mesh.position.y > 8.2 || lb.mesh.position.length() > BOWL_RADIUS - 0.6) {
+                    lb.mesh.position.y = -5.4;
+                    lb.mesh.position.x = (Math.random() - 0.5) * 9;
+                    lb.mesh.position.z = (Math.random() - 0.5) * 9;
+                }
+            });
+
+            // Легкая рябь водной глади сверху
+            if (waterMeniscus) {
+                waterMeniscus.position.y = BOWL_RADIUS * Math.cos(Math.PI * 0.17) + Math.sin(elapsed * 2.2) * 0.03;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // ==========================================
+        // ИНТЕРАКТИВНОСТЬ И КНОПКА СКАЧИВАНИЯ ФАЙЛА
+        // ==========================================
+        function setupInteractions() {
+            const dom = renderer.domElement;
+
+            // Вращение мышью
+            dom.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - prevMouse.x;
+                const dy = e.clientY - prevMouse.y;
+                targetSpherical.theta -= dx * 0.0065;
+                targetSpherical.phi = THREE.MathUtils.clamp(targetSpherical.phi - dy * 0.0055, 0.45, Math.PI * 0.62);
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            // Сенсорное управление для телефонов и планшетов
+            dom.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const dx = e.touches[0].clientX - prevMouse.x;
+                const dy = e.touches[0].clientY - prevMouse.y;
+                targetSpherical.theta -= dx * 0.0065;
+                targetSpherical.phi = THREE.MathUtils.clamp(targetSpherical.phi - dy * 0.0055, 0.45, Math.PI * 0.62);
+                prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }, { passive: true });
+
+            window.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+
+            // Зум колесиком мыши
+            dom.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                targetSpherical.radius = THREE.MathUtils.clamp(targetSpherical.radius + e.deltaY * 0.015, 16, 40);
+            }, { passive: false });
+
+            // Двойной клик по аквариуму — бросить корм
+            dom.addEventListener('dblclick', () => {
+                dropFishFood();
+            });
+
+            // Кнопки интерфейса
+            document.getElementById('btn-feed').addEventListener('click', () => {
+                dropFishFood();
+            });
+
+            document.getElementById('btn-add-fish').addEventListener('click', () => {
+                if (fishes.length < 24) {
+                    spawnFish();
+                } else {
+                    showToast('В аквариуме уже максимум рыбок (24)!');
+                }
+            });
+
+            document.getElementById('btn-shark').addEventListener('click', () => {
+                toggleShark();
+            });
+
+            document.getElementById('btn-bubbles').addEventListener('click', () => {
+                bubbleIntensity = (bubbleIntensity + 1) % 3;
+                const labels = ['Выкл', 'Норма', 'Макс'];
+                document.getElementById('bubble-state').textContent = labels[bubbleIntensity];
+            });
+
+            document.getElementById('btn-light').addEventListener('click', () => {
+                lightingMode = (lightingMode + 1) % 3;
+                const labelEl = document.getElementById('light-state');
+                const container = document.getElementById('canvas-container');
+
+                if (lightingMode === 0) {
+                    labelEl.textContent = 'День';
+                    ambientLight.color.setHex(0x1e4e79);
+                    topLight.color.setHex(0xe0f7fa);
+                    bottomGlowLight.color.setHex(0x00b4d8);
+                    container.style.background = 'radial-gradient(circle at 50% 45%, #0c2b4e 0%, #041022 55%, #01050c 100%)';
+                } else if (lightingMode === 1) {
+                    labelEl.textContent = 'Риф-Неон';
+                    ambientLight.color.setHex(0x3b0764);
+                    topLight.color.setHex(0x38bdf8);
+                    bottomGlowLight.color.setHex(0xf43f5e);
+                    container.style.background = 'radial-gradient(circle at 50% 45%, #1e1040 0%, #090518 55%, #020108 100%)';
+                } else {
+                    labelEl.textContent = 'Золотой Закат';
+                    ambientLight.color.setHex(0x451a03);
+                    topLight.color.setHex(0xfde68a);
+                    bottomGlowLight.color.setHex(0xf97316);
+                    container.style.background = 'radial-gradient(circle at 50% 45%, #3b1d11 0%, #140906 55%, #050201 100%)';
+                }
+            });
+
+            // Кнопка скачивания самодостаточного HTML-файла
+            document.getElementById('btn-download').addEventListener('click', () => {
+                const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+                const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = '3d_realistic_aquarium.html';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                showToast('Файл 3d_realistic_aquarium.html скачивается!');
+            });
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 3000);
+        }
+
+        function onWindowResize() {
+            if (!camera || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        window.onload = function () {
+            initAquarium();
+            animate();
+        };
+    </script>
+
+</body></html>
